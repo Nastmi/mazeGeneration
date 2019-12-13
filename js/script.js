@@ -39,7 +39,7 @@ function generateMaze(){
     let visited = [];
     let stack = [];
     drawGrid(gridArray);
-    let currentCell = Math.floor(Math.random()*36+1);/*getCell(Math.floor(Math.random()*36).toString);*/
+    let currentCell = Math.floor(Math.random()*35);/*getCell(Math.floor(Math.random()*36).toString);*/
     while(true){
         visited.push(currentCell);
         stack.push(currentCell);
@@ -52,7 +52,7 @@ function generateMaze(){
                 stack.pop();
                 break;
             }
-            if(sur[index]<1 || sur[index]>36 || (index == 0 && sur[index]%gridLength == 0) || (index == 1 && sur[index]%gridLength == 1)){
+            if(sur[index]<0 || sur[index]>35 || (index == 0 && sur[index]%gridLength == 1) || (index == 1 && sur[index]%gridLength == 0)){
                 if(!checked.includes(index))
                     checked.push(index);
                 continue;
@@ -66,15 +66,14 @@ function generateMaze(){
                 }
                 else{
                     currentCell = sur[index];
-                    console.log(Math.floor(currentCell/6)+" "+currentCell%5);
-                    console.log(gridArray[Math.floor(currentCell/5)][currentCell%5]);
-                    
-                   /* switch(index){
-                        case 0:gridArray[Math.floor(currentCell/6)-1][currentCell%6] = replaceCharAt(gridArray[Math.floor(currentCell/6)][currentCell%6],index+2,"0");break;
-                        case 1:gridArray[Math.floor(currentCell/6)][currentCell%6-1] = replaceCharAt(gridArray[Math.floor(currentCell/6)][currentCell%6],index+2,"0");break;
-                        case 2:gridArray[Math.floor(currentCell/6)+1][currentCell%6] = replaceCharAt(gridArray[Math.floor(currentCell/6)][currentCell%6],index-2,"0");break;
-                        case 3:gridArray[Math.floor(currentCell/6)][currentCell%6+1] = replaceCharAt(gridArray[Math.floor(currentCell/6)][currentCell%6],index-2,"0");break;
-                    }*/
+                    gridArray[Math.trunc(currentCell/gridLength)][currentCell%gridLength] = replaceCharAt(gridArray[Math.floor(currentCell/gridLength)][currentCell%gridLength],index,"0");
+                    console.log(sur[index] + " "+index);
+                    switch(index){
+                        case 0:gridArray[Math.trunc(currentCell/gridLength)-1][currentCell%gridLength] = replaceCharAt(gridArray[Math.floor(currentCell/gridLength)][currentCell%gridLength],index+2,"0");break;
+                        case 1:gridArray[Math.trunc(currentCell/gridLength)][currentCell%gridLength+1] = replaceCharAt(gridArray[Math.floor(currentCell/gridLength)][currentCell%gridLength],index+2,"0");break;
+                        case 2:gridArray[Math.trunc(currentCell/gridLength)+1][currentCell%gridLength] = replaceCharAt(gridArray[Math.floor(currentCell/gridLength)][currentCell%gridLength],index-2,"0");break;
+                        case 3:gridArray[Math.trunc(currentCell/gridLength)][currentCell%gridLength-1] = replaceCharAt(gridArray[Math.floor(currentCell/gridLength)][currentCell%gridLength],index-2,"0");break;
+                    }
                     break;
                 }
             }
@@ -85,7 +84,7 @@ function generateMaze(){
     drawGrid(gridArray);
 }
 function returnSurroundingCells(cellNum, gridLength){
-    return [cellNum-1,cellNum+1,cellNum-gridLength,cellNum+gridLength];
+    return [cellNum-gridLength,cellNum+1,cellNum+gridLength,cellNum-1];
 }
 function replaceCharAt(string, index, replace){
     return string.substring(0,index)+replace+string.substring(index+1,string.length);
