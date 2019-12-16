@@ -41,18 +41,24 @@ function generateMaze(){
     drawGrid(gridArray);
     let currentCell = Math.floor(Math.random()*35);/*getCell(Math.floor(Math.random()*36).toString);*/
     while(true){
-        visited.push(currentCell);
-        stack.push(currentCell);
+        if(!visited.includes(currentCell))
+            visited.push(currentCell);
+        if(!stack.includes(currentCell))
+            stack.push(currentCell);
         let sur = returnSurroundingCells(currentCell, gridLength);
+        console.log(currentCell);
         let checked = []; 
         while(true){
             let index = Math.floor(Math.random()*4);
-            if(checked.length == 4){
-                currentCell = stack[stack.indexOf(currentCell)-1];
+            console.log("longth "+stack.length+" visot "+visited.length+" checj "+checked.length+" indiox "+index);
+            if(checked.length >= 4){
                 stack.pop();
+                console.log("bfr "+currentCell);
+                currentCell = stack[stack.length-1];
+                console.log("adftr "+currentCell);
                 break;
             }
-            if(sur[index]<0 || sur[index]>35 || (index == 0 && sur[index]%gridLength == 1) || (index == 1 && sur[index]%gridLength == 0)){
+            if(sur[index]<0 || sur[index]>35 || (index == 1 && sur[index]%gridLength == 0) || (index == 3 && sur[index]%gridLength == 1)){
                 if(!checked.includes(index))
                     checked.push(index);
                 continue;
@@ -65,15 +71,18 @@ function generateMaze(){
                     continue;
                 }
                 else{
+                    /*console.log("replacing wall "+index+ " on cell "+currentCell);
+                    console.log("The moving onto cell "+sur[index]);*/
+                    gridArray[Math.trunc(currentCell/gridLength)][currentCell%gridLength] = replaceCharAt(gridArray[Math.trunc(currentCell/gridLength)][currentCell%gridLength],index,"0");
                     currentCell = sur[index];
-                    gridArray[Math.trunc(currentCell/gridLength)][currentCell%gridLength] = replaceCharAt(gridArray[Math.floor(currentCell/gridLength)][currentCell%gridLength],index,"0");
-                    console.log(sur[index] + " "+index);
                     switch(index){
-                        case 0:gridArray[Math.trunc(currentCell/gridLength)-1][currentCell%gridLength] = replaceCharAt(gridArray[Math.floor(currentCell/gridLength)][currentCell%gridLength],index+2,"0");break;
-                        case 1:gridArray[Math.trunc(currentCell/gridLength)][currentCell%gridLength+1] = replaceCharAt(gridArray[Math.floor(currentCell/gridLength)][currentCell%gridLength],index+2,"0");break;
-                        case 2:gridArray[Math.trunc(currentCell/gridLength)+1][currentCell%gridLength] = replaceCharAt(gridArray[Math.floor(currentCell/gridLength)][currentCell%gridLength],index-2,"0");break;
-                        case 3:gridArray[Math.trunc(currentCell/gridLength)][currentCell%gridLength-1] = replaceCharAt(gridArray[Math.floor(currentCell/gridLength)][currentCell%gridLength],index-2,"0");break;
+                        case 0:
+                        case 1:index=index+2;break;
+                        case 2:
+                        case 3:index=index-2;break;
                     }
+                   // console.log("and replacing wall "+index);
+                    gridArray[Math.trunc(currentCell/gridLength)][currentCell%gridLength] = replaceCharAt(gridArray[Math.trunc(currentCell/gridLength)][currentCell%gridLength],index,"0");
                     break;
                 }
             }
@@ -81,6 +90,7 @@ function generateMaze(){
         if(visited.length >= 36)
             break;
     }
+    context.clearRect(0,0,mainCanvas.clientWidth,mainCanvas.clientHeight);
     drawGrid(gridArray);
 }
 function returnSurroundingCells(cellNum, gridLength){
@@ -88,4 +98,10 @@ function returnSurroundingCells(cellNum, gridLength){
 }
 function replaceCharAt(string, index, replace){
     return string.substring(0,index)+replace+string.substring(index+1,string.length);
+}
+window.onresize = changeScale;
+
+function changeScale(){
+    scaleX = mainCanvas.clientWidth/1920;
+    scaleY = mainCanvas.clientHeight/749;
 }
