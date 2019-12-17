@@ -55,7 +55,7 @@ async function generateMaze(){
     let stack = [];
     drawGrid(gridArray);
     let currentCell = Math.floor(Math.random()*(mazeSize.height*mazeSize.width-1));
-    while(visited.length < mazeSize.width*mazeSize.height){
+    while(visited.length < mazeSize.width*mazeSize.height 	){
         if(!visited.includes(currentCell))
             visited.push(currentCell);
         if(!stack.includes(currentCell))
@@ -100,7 +100,7 @@ async function generateMaze(){
         }
         drawGrid(gridArray);
         cellsToDraw.forEach(cell => drawCell(cell.cell,cell.color));
-        await sleep(2);
+        await sleep(1);
     }
     startCell = returnEdgeCell();
     endCell = returnEdgeCell();
@@ -121,6 +121,7 @@ async function solveMaze(){
         while(true){
             let index = Math.floor(Math.random()*4);
             if(checked.length >= 4){
+				console.log("yes");
                 stack.pop();
                 cellsToDraw.pop();
                 cellsToDraw.push(cellsToDraw.push({cell:currentCell,color:"#FF0000"}));
@@ -128,23 +129,28 @@ async function solveMaze(){
                 break;
             }
             if(sur[index]<0 || sur[index]>mazeSize.width*mazeSize.height-1 || (index == 1 && sur[index]%mazeSize.width == 0) || (index == 3 && sur[index]%mazeSize.width == mazeSize.width-1)){
-                if(!checked.includes(index) || visited.includes(sur[index]))
-                    checked.push(index);
-                continue;
-            } 
-            if(gridArray[Math.trunc(currentCell/mazeSize.width)][currentCell%mazeSize.width].charAt(index) == "0"){
-                currentCell = sur[index];
-                cellsToDraw.push({cell:currentCell,color:"#0000FF"});
-                break;
-            }
-            else{
                 if(!checked.includes(index))
                     checked.push(index);
                 continue;
             }
+			if(visited.includes(sur[index])){
+				if(!checked.includes(index))
+                    checked.push(index);
+                continue;
+			}
+			if(gridArray[Math.trunc(currentCell/mazeSize.width)][currentCell%mazeSize.width].charAt(index) == "1"){
+				if(!checked.includes(index))
+                    checked.push(index);
+                continue;
+			}
+            else if(gridArray[Math.trunc(currentCell/mazeSize.width)][currentCell%mazeSize.width].charAt(index) == "0"){
+                currentCell = sur[index];
+                cellsToDraw.push({cell:currentCell,color:"#0000FF"});
+                break;
+            }
         }
         cellsToDraw.forEach(cell => drawCell(cell.cell,cell.color));
-        await sleep(100); 
+        await sleep(1); 
     }
 }
 function drawCell(cellToDraw, color){
@@ -189,12 +195,12 @@ function initializeSizes(){
         y:50,
     }
     cellSize={
-        width:50,
-        height:50,
+        width:21,
+        height:21,
     }
     mazeSize={
-        width:15,
-        height:15,
+        width:40,
+        height:40,
     }
 }
 function sleep(ms) {
