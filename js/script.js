@@ -54,6 +54,13 @@ function drawGrid(gridArray){
     if(typeof endCell !="undefined")
         drawCell(endCell,"#FF0000")  
 }
+
+function beginGame(){
+    
+}
+function triangleArea(){
+
+}
 async function generateMaze(){
     gridArray = Array(mazeSize.height).fill().map(() => Array(mazeSize.width).fill("1111"));
     let visited = [];
@@ -112,6 +119,10 @@ async function generateMaze(){
     console.log("start "+startCell+" end "+endCell);
     drawGrid(gridArray); 
 }
+
+
+
+
 async function solveMaze(){
     let visited = [];
     let stack = [];
@@ -156,15 +167,14 @@ async function solveMaze(){
             }
         }
         /*cellsToDraw.forEach(cell => drawCell(cell.cell,cell.color));
-        await sleep(100); */
+        await sleep(100);*/ 
     }
 }
 function drawCell(cellToDraw, color){
     context.strokeStyle = color;
     context.fillStyle = color;
     context.beginPath();
-    context.fillRect(begin.y+cellSize.height*(cellToDraw%mazeSize.width)+1,begin.x+cellSize.width*Math.trunc(cellToDraw/mazeSize.width)+1,cellSize.width-2,cellSize.height-2);
-    console.log((begin.y+cellSize.height*(cellToDraw%mazeSize.width)+1)+" "+(begin.x+cellSize.width*Math.trunc(cellToDraw/mazeSize.width)+1));
+    context.fillRect(begin.x+cellSize.height*(cellToDraw%mazeSize.width)+1,begin.y+cellSize.width*Math.trunc(cellToDraw/mazeSize.width)+1,cellSize.width-2,cellSize.height-2);
 }
 function returnSurroundingCells(cellNum, gridLength){
     return [cellNum-gridLength,cellNum+1,cellNum+gridLength,cellNum-1];
