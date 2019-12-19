@@ -18,6 +18,11 @@ function initializeCanvas(){
     context = mainCanvas.getContext("2d"); 
     initializeSizes();
     generateMaze();
+    tick();
+}
+function tick(){
+    drawGrid(gridArray);
+    requestAnimationFrame(tick);
 }
 function drawGrid(gridArray){
     context.clearRect(0,0,mainCanvas.clientWidth,mainCanvas.clientHeight);
@@ -99,11 +104,12 @@ async function generateMaze(){
             }
         }
         drawGrid(gridArray);
-        cellsToDraw.forEach(cell => drawCell(cell.cell,cell.color));
-        await sleep(1);
+       /* cellsToDraw.forEach(cell => drawCell(cell.cell,cell.color));
+        await sleep(100);*/
     }
     startCell = returnEdgeCell();
     endCell = returnEdgeCell();
+    console.log("start "+startCell+" end "+endCell);
     drawGrid(gridArray); 
 }
 async function solveMaze(){
@@ -149,16 +155,16 @@ async function solveMaze(){
                 break;
             }
         }
-        cellsToDraw.forEach(cell => drawCell(cell.cell,cell.color));
-        await sleep(1); 
+        /*cellsToDraw.forEach(cell => drawCell(cell.cell,cell.color));
+        await sleep(100); */
     }
 }
 function drawCell(cellToDraw, color){
-    console.log(startCell);
     context.strokeStyle = color;
     context.fillStyle = color;
     context.beginPath();
     context.fillRect(begin.y+cellSize.height*(cellToDraw%mazeSize.width)+1,begin.x+cellSize.width*Math.trunc(cellToDraw/mazeSize.width)+1,cellSize.width-2,cellSize.height-2);
+    console.log((begin.y+cellSize.height*(cellToDraw%mazeSize.width)+1)+" "+(begin.x+cellSize.width*Math.trunc(cellToDraw/mazeSize.width)+1));
 }
 function returnSurroundingCells(cellNum, gridLength){
     return [cellNum-gridLength,cellNum+1,cellNum+gridLength,cellNum-1];
@@ -191,16 +197,16 @@ function changeScale(){
 }
 function initializeSizes(){
     begin={
-        x:50,
-        y:50,
+        x:500,
+        y:100,
     }
     cellSize={
-        width:21,
-        height:21,
+        width:45,
+        height:45,
     }
     mazeSize={
-        width:40,
-        height:40,
+        width:15,
+        height:15,
     }
 }
 function sleep(ms) {
