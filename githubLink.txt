@@ -1,0 +1,2 @@
+Site: https://nastmi.github.io/mazeGeneration/
+Repository: https://github.com/Nastmi/mazeGeneration
