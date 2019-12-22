@@ -3,13 +3,16 @@ let context;
 let scaleX;
 let scaleY;
 let startCell;
+let startCellInfo;
 let endCell;
+let endCellInfo;
 let begin;
 let cellSize;
 let mazeSize;
 let gridArray;
 let cellsToDraw = [];
-function initializeCanvas(){
+let date = Date.now();
+async function initializeCanvas(){
     mainCanvas = document.getElementById("drawCanvas");
     mainCanvas.width = mainCanvas.clientWidth;
     mainCanvas.height = mainCanvas.clientHeight;
@@ -17,13 +20,43 @@ function initializeCanvas(){
     scaleY = mainCanvas.clientHeight/749;
     context = mainCanvas.getContext("2d"); 
     initializeSizes();
-    generateMaze();
+    await generateMaze();
+    mainCanvas.addEventListener("mousemove",checkBegin);
     tick();
 }
 function tick(){
+    /*if(Date.now()-date >= 10 && begin.x+mazeSize.width*cellSize.width < mainCanvas.clientWidth){
+        begin.x+= 10;
+        date = Date.now();
+    }*/
     drawGrid(gridArray);
     requestAnimationFrame(tick);
 }
+function checkBegin(e){
+    let mousePos={
+        x:e.clientX,
+        y:e.clientY
+    }
+    if(pointInsideCircle(startCellInfo,mousePos)){
+        console.log("ayy");
+        mainCanvas.style.cursor = "url('img/cursor.png'), auto";
+    }    
+}
+function pointInsideCircle(circle, point){
+    point ={
+        x:Math.trunc(point.x),
+        y:Math.trunc(point.y),
+    }
+    if(distanceBetween(circle,point)<circle.r){
+        return true;
+    }
+    return false;
+}
+function distanceBetween(a,b){
+    return Math.sqrt(((a.x-b.x)*(a.x-b.x))+((a.y-b.y)*(a.y-b.y)));
+}
+
+
 function drawGrid(gridArray){
     context.clearRect(0,0,mainCanvas.clientWidth,mainCanvas.clientHeight);
     context.strokeStyle="#FFFFFF";
@@ -57,9 +90,6 @@ function drawGrid(gridArray){
 
 function beginGame(){
     
-}
-function triangleArea(){
-
 }
 async function generateMaze(){
     gridArray = Array(mazeSize.height).fill().map(() => Array(mazeSize.width).fill("1111"));
@@ -115,6 +145,11 @@ async function generateMaze(){
         await sleep(100);*/
     }
     startCell = returnEdgeCell();
+    startCellInfo={
+        x:begin.x+cellSize.width*(startCell%mazeSize.width)+cellSize.width/2,
+        y:begin.y+cellSize.height*Math.trunc(startCell/mazeSize.width)+cellSize.height/2,
+        r:cellSize.width/2,
+    }
     endCell = returnEdgeCell();
     console.log("start "+startCell+" end "+endCell);
     drawGrid(gridArray); 
@@ -171,10 +206,12 @@ async function solveMaze(){
     }
 }
 function drawCell(cellToDraw, color){
+    context.beginPath();
     context.strokeStyle = color;
     context.fillStyle = color;
-    context.beginPath();
-    context.fillRect(begin.x+cellSize.height*(cellToDraw%mazeSize.width)+1,begin.y+cellSize.width*Math.trunc(cellToDraw/mazeSize.width)+1,cellSize.width-2,cellSize.height-2);
+    context.arc(begin.x+cellSize.width*(cellToDraw%mazeSize.width)+cellSize.width/2,begin.y+cellSize.height*Math.trunc(cellToDraw/mazeSize.width)+cellSize.height/2,cellSize.width/2-3,0,Math.PI*2);
+    context.fill();
+    context.stroke();
 }
 function returnSurroundingCells(cellNum, gridLength){
     return [cellNum-gridLength,cellNum+1,cellNum+gridLength,cellNum-1];
