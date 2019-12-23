@@ -143,7 +143,7 @@ async function generateMaze(){
             continue;
         }
         else{
-            if(visited.includes(sur[index]) && rnd!=0){
+            if(visited.includes(sur[index])){
                 if(!checked.includes(index)){
                     checked.push(index);
                 }
