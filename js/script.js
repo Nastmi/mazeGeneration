@@ -3,7 +3,6 @@ let context;
 let scaleX;
 let scaleY;
 let startCell;
-let startCellInfo;
 let endCell;
 let endCellInfo;
 let begin;
@@ -13,6 +12,15 @@ let gridArray;
 let cellsToDraw = [];
 let date = Date.now();
 let collisionLines = [];
+let playerPos;
+let speedX=0;
+let speedY=0;
+let keysDown={
+    left:false,
+    up:false,
+    right:false,
+    down:false,
+}
 async function initializeCanvas(){
     mainCanvas = document.getElementById("drawCanvas");
     mainCanvas.width = mainCanvas.clientWidth;
@@ -23,7 +31,8 @@ async function initializeCanvas(){
     context = mainCanvas.getContext("2d"); 
     initializeSizes();
     await generateMaze();
-    mainCanvas.addEventListener("mousemove",checkBegin);
+    window.addEventListener("keydown",keyBoolean,true);
+    window.addEventListener("keyup",stop,true);
     tick();
 }
 function tick(){
@@ -32,18 +41,22 @@ function tick(){
         date = Date.now();
     }*/
     drawGrid(gridArray);
+    context.beginPath();
+    context.strokeStyle = "#00FF00";
+    context.fillStyle = "#00FF00";
+    context.arc(playerPos.x,playerPos.y,12,0,Math.PI*2);
+    context.fill();
+    context.stroke();
     requestAnimationFrame(tick);
+    changeSpeed();
+    movePlayer();
+}
+function movePlayer(){
+    playerPos.x+=speedX;
+    playerPos.y+=speedY;
 }
 async function checkBegin(e){
-    let mousePos={
-        x:e.clientX,
-        y:e.clientY
-    }
-    if(pointInsideCircle(startCellInfo,mousePos)){
-        mainCanvas.style.cursor = "url('img/cursor.png'), auto";
-        mainCanvas.removeEventListener("mousemove",checkBegin);
-        mainCanvas.addEventListener("mousemove",checkCollisions);
-    }    
+     
 }
 function pointInsideCircle(circle, point){
     point ={
@@ -57,6 +70,52 @@ function pointInsideCircle(circle, point){
 }
 function distanceBetween(a,b){
     return Math.sqrt(((a.x-b.x)*(a.x-b.x))+((a.y-b.y)*(a.y-b.y)));
+}
+function keyBoolean(e){
+    switch(e.keyCode){
+        case 37:
+            keysDown.left = true;
+            break;
+        case 38:
+            keysDown.up = true;
+            break;
+        case 39:
+            keysDown.right = true;
+            break;
+        case 40:
+            keysDown.down = true;
+            break;
+    }
+}
+function changeSpeed(){
+        if(speedX>-2 && keysDown.left)
+            speedX-=2;
+        if(speedY>-2 && keysDown.up)
+            speedY-=2;
+        if(speedX<2 && keysDown.right)
+            speedX+=2;
+        if(speedY<2 && keysDown.down)
+            speedY+=2;
+        if(!keysDown.left && !keysDown.right)    
+            speedX=0;
+        if(!keysDown.up && !keysDown.down)    
+        speedY=0;
+}
+function stop(e){
+    switch(e.keyCode){
+        case 37:
+            keysDown.left = false;
+            break;
+        case 38:
+            keysDown.up = false;
+            break;
+        case 39:
+            keysDown.right = false;
+            break;
+        case 40:
+            keysDown.down = false;
+            break;
+    }
 }
 function checkCollisions(e){
     let mousePos={
@@ -83,21 +142,16 @@ function drawGrid(gridArray){
     context.lineWidth = 2;
     let numOfLoop = 0;
     collisionLines = [];
+    let r = Math.sqrt(2)*cellSize.width/2;
+    let angle = 90;
+    let startAngle = 0;
     for(let i=0;i<gridArray.length;i++){
         for(let j=0;j<gridArray[i].length;j++){
             for(let k=0;k<gridArray[i][j].length;k++){
                 if(gridArray[i][j].charAt(k) == "1"){ 
                     context.beginPath();
-                    switch(k){
-                        case 0:context.moveTo(begin.x+cellSize.width*j,begin.y+cellSize.height*i);context.lineTo(begin.x+cellSize.width*j+cellSize.width,begin.y+cellSize.height*i);
-                        collisionLines.push({x1:begin.x+cellSize.width*j,y1:begin.y+cellSize.height*i,x2:begin.x+cellSize.width*j+cellSize.width,y2:begin.y+cellSize.height*i});break;
-                        case 1:context.moveTo(begin.x+cellSize.width*j+cellSize.width,begin.y+cellSize.height*i);context.lineTo(begin.x+cellSize.width*j+cellSize.width,begin.y+cellSize.height*i+cellSize.height);
-                        collisionLines.push({x1:begin.x+cellSize.width*j+cellSize.width,y1:begin.y+cellSize.height*i,x2:begin.x+cellSize.width*j+cellSize.width,y2:begin.y+cellSize.height*i+cellSize.height});break;
-                        case 2:context.moveTo(begin.x+cellSize.width*j+cellSize.width,begin.y+cellSize.height*i+cellSize.height);context.lineTo(begin.x+cellSize.width*j,begin.y+cellSize.height*i+cellSize.height);
-                        collisionLines.push({x1:begin.x+cellSize.width*j+cellSize.width,y1:begin.y+cellSize.height*i+cellSize.height,x2:begin.x+cellSize.width*j,y2:begin.y+cellSize.height*i+cellSize.height});break;
-                        case 3:context.moveTo(begin.x+cellSize.width*j,begin.y+cellSize.height*i+cellSize.height);context.lineTo(begin.x+cellSize.width*j,begin.y+cellSize.height*i);
-                        collisionLines.push({x1:begin.x+cellSize.width*j,y1:begin.y+cellSize.height*i+cellSize.height,x2:begin.x+cellSize.width*j,y2:begin.y+cellSize.height*i});break;
-                    }
+                    context.moveTo(begin.x+Math.cos(toRadians(startAngle+angle*(k-1)))*r+cellSize.width*j,begin.y+Math.sin(toRadians(startAngle+angle*(k-1)))*r+cellSize.height*i);
+                    context.lineTo(begin.x+Math.cos(toRadians(startAngle+angle*k))*r+cellSize.width*j,begin.y+Math.sin(toRadians(startAngle+angle*k))*r+cellSize.height*i);
                     context.stroke();
                 }
             }
@@ -109,7 +163,11 @@ function drawGrid(gridArray){
     if(typeof startCell !="undefined")
         drawCell(startCell,"#0000FF");
     if(typeof endCell !="undefined")
-        drawCell(endCell,"#FF0000")  
+        drawCell(endCell,"#FF0000");
+      
+}
+function toRadians(angle){
+    return angle*(Math.PI/180);
 }
 function beginGame(){
     
@@ -168,9 +226,9 @@ async function generateMaze(){
         await sleep(100);*/
     }
     startCell = returnEdgeCell();
-    startCellInfo={
-        x:begin.x+cellSize.width*(startCell%mazeSize.width)+cellSize.width/2,
-        y:begin.y+cellSize.height*Math.trunc(startCell/mazeSize.width)+cellSize.height/2,
+    playerPos={
+        x:begin.x+cellSize.width*(startCell%mazeSize.width),
+        y:begin.y+cellSize.height*Math.trunc(startCell/mazeSize.width),
         r:cellSize.width/2,
     }
     endCell = returnEdgeCell();
@@ -228,7 +286,7 @@ function drawCell(cellToDraw, color){
     context.beginPath();
     context.strokeStyle = color;
     context.fillStyle = color;
-    context.arc(begin.x+cellSize.width*(cellToDraw%mazeSize.width)+cellSize.width/2,begin.y+cellSize.height*Math.trunc(cellToDraw/mazeSize.width)+cellSize.height/2,cellSize.width/2-3,0,Math.PI*2);
+    context.arc(begin.x+cellSize.width*(cellToDraw%mazeSize.width),begin.y+cellSize.height*Math.trunc(cellToDraw/mazeSize.width),cellSize.width/2-3,0,Math.PI*2);
     context.fill();
     context.stroke();
 }
@@ -254,23 +312,26 @@ function replaceCharAt(string, index, replace){
 }
 window.onresize = changeScale;
 function changeScale(){
+    mainCanvas.width = mainCanvas.clientWidth;
+    mainCanvas.height = mainCanvas.clientHeight;
     scaleX = mainCanvas.clientWidth/1918;
     scaleY = mainCanvas.clientHeight/916;
+
     initializeSizes();
     context.clearRect(0,0,mainCanvas.clientWidth,mainCanvas.clientHeight);
 }
 function initializeSizes(){
     begin={
-        x:30*scaleX,
-        y:30*scaleX,
+        x:100*scaleX,
+        y:100*scaleX,
     }
     cellSize={
         width:45*scaleX,
         height:45*scaleX,
     }
     mazeSize={
-        width:19,
-        height:19,
+        width:17,
+        height:17,
     }
 }
 function sleep(ms) {
