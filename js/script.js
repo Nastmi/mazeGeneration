@@ -35,21 +35,23 @@ async function initializeCanvas(){
     window.addEventListener("keyup",stop,true);
     tick();
 }
-function tick(){
+async function tick(){
     /*if(Date.now()-date >= 10 && begin.x+mazeSize.width*cellSize.width < mainCanvas.clientWidth){
         begin.x+= 10;
         date = Date.now();
     }*/
-    drawGrid(gridArray);
+    calcGrid(gridArray);
+    drawGrid(collisionLines);
     context.beginPath();
     context.strokeStyle = "#00FF00";
     context.fillStyle = "#00FF00";
-    context.arc(playerPos.x,playerPos.y,12,0,Math.PI*2);
+    context.arc(playerPos.x,playerPos.y,8,0,Math.PI*2);
     context.fill();
     context.stroke();
-    requestAnimationFrame(tick);
     changeSpeed();
     movePlayer();
+    checkCollisions();
+    requestAnimationFrame(tick);
 }
 function movePlayer(){
     playerPos.x+=speedX;
@@ -118,53 +120,56 @@ function stop(e){
     }
 }
 function checkCollisions(e){
-    let mousePos={
-        x:e.clientX,
-        y:e.clientY,
-        r:8,
-    }
     for(let i=0;i<collisionLines.length;i++){
-        if(lineIntersectCircle(collisionLines[i],mousePos)<mousePos.r){
-            document.getElementById("info").innerHTML = "ded"+" "+lineIntersectCircle(collisionLines[i],mousePos)+" "+collisionLines[i].x2;
+        if(lineIntersectCircle(collisionLines[i],playerPos)<playerPos.r){
+            console.log(collisionLines[i]);
+            playerPos.x=playerPos.startX;
+            playerPos.y=playerPos.startY;
+            document.getElementById("info").innerHTML = "ded";
         }
         else{
-            //document.getElementById("info").innerHTML = "aliv"+" "+lineIntersectCircle(collisionLines[i],mousePos);
+            
         }
     }
 }
 function lineIntersectCircle(line, circle){
     return Math.abs((line.y2-line.y1)*circle.x-(line.x2-line.x1)*circle.y+line.x2*line.y1-line.y2*line.x1)/Math.sqrt(((line.y2-line.y1)*(line.y2-line.y1)+(line.x2-line.x1)*(line.x2-line.x1)));
 }
-function drawGrid(gridArray){
-    context.clearRect(0,0,mainCanvas.clientWidth,mainCanvas.clientHeight);
-    context.strokeStyle="#FFFFFF";
-    context.fillStyle = "#FFFFFF";
-    context.lineWidth = 2;
-    let numOfLoop = 0;
+function calcGrid(gridArray){
     collisionLines = [];
     let r = Math.sqrt(2)*cellSize.width/2;
     let angle = 90;
-    let startAngle = 0;
+    let startAngle = -45;
+    let center={
+        x:begin.x+mazeSize.width*cellSize.width/2,
+        y:begin.x+mazeSize.height*cellSize.height/2
+    }
     for(let i=0;i<gridArray.length;i++){
         for(let j=0;j<gridArray[i].length;j++){
             for(let k=0;k<gridArray[i][j].length;k++){
-                if(gridArray[i][j].charAt(k) == "1"){ 
-                    context.beginPath();
-                    context.moveTo(begin.x+Math.cos(toRadians(startAngle+angle*(k-1)))*r+cellSize.width*j,begin.y+Math.sin(toRadians(startAngle+angle*(k-1)))*r+cellSize.height*i);
-                    context.lineTo(begin.x+Math.cos(toRadians(startAngle+angle*k))*r+cellSize.width*j,begin.y+Math.sin(toRadians(startAngle+angle*k))*r+cellSize.height*i);
-                    context.stroke();
+                if(gridArray[i][j].charAt(k) == "1"){               
+                    collisionLines.push({x1:begin.x+Math.cos(toRadians(startAngle+angle*(k-1)))*r+cellSize.width*j,y1:begin.y+Math.sin(toRadians(startAngle+angle*(k-1)))*r+cellSize.height*i,
+                    x2:begin.x+Math.cos(toRadians(startAngle+angle*(k)))*r+cellSize.width*j,y2:begin.y+Math.sin(toRadians(startAngle+angle*(k)))*r+cellSize.height*i});
                 }
             }
-          /*  context.font = "13px Sans Serif";
-            context.fillText(numOfLoop,begin.x+cellSize.width*j+cellSize.width/2,begin.y+cellSize.height*i+cellSize.height/2);*/
-            numOfLoop++;
         }
+    } 
+}
+function drawGrid(gridToDraw){
+    context.strokeStyle="#FFFFFF";
+    context.fillStyle = "#FFFFFF";
+    context.clearRect(0,0,mainCanvas.clientWidth,mainCanvas.clientHeight);
+    context.lineWidth = 2;
+    for(let i=0;i<gridToDraw.length;i++){
+        context.beginPath();
+        context.moveTo(gridToDraw[i].x1,gridToDraw[i].y1);
+        context.lineTo(gridToDraw[i].x2,gridToDraw[i].y2);
+        context.stroke();
     }
     if(typeof startCell !="undefined")
         drawCell(startCell,"#0000FF");
     if(typeof endCell !="undefined")
         drawCell(endCell,"#FF0000");
-      
 }
 function toRadians(angle){
     return angle*(Math.PI/180);
@@ -179,7 +184,7 @@ async function generateMaze(){
     let checked = [];
    // let rnd = Math.trunc(Math.random()*15);
     let currentCell = Math.floor(Math.random()*(mazeSize.height*mazeSize.width-1));
-    while(visited.length < mazeSize.width*mazeSize.height 	){
+    while(visited.length < mazeSize.width*mazeSize.height){
         if(!visited.includes(currentCell))
             visited.push(currentCell);
         if(!stack.includes(currentCell))
@@ -227,13 +232,13 @@ async function generateMaze(){
     }
     startCell = returnEdgeCell();
     playerPos={
+        startX:begin.x+cellSize.width*(startCell%mazeSize.width),
+        startY:begin.y+cellSize.height*Math.trunc(startCell/mazeSize.width),
         x:begin.x+cellSize.width*(startCell%mazeSize.width),
         y:begin.y+cellSize.height*Math.trunc(startCell/mazeSize.width),
-        r:cellSize.width/2,
+        r:8,
     }
     endCell = returnEdgeCell();
-    console.log("start "+startCell+" end "+endCell);
-    drawGrid(gridArray); 
 }
 async function solveMaze(){
     let visited = [];
