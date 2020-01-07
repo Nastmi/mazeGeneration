@@ -15,22 +15,32 @@ let collisionLines = [];
 let playerPos;
 let speedX=0;
 let speedY=0;
+let center;
+let angle = 0;
 let keysDown={
     left:false,
     up:false,
     right:false,
     down:false,
 }
+let angles = [];
 async function initializeCanvas(){
     mainCanvas = document.getElementById("drawCanvas");
     mainCanvas.width = mainCanvas.clientWidth;
     mainCanvas.height = mainCanvas.clientHeight;
-    console.log(mainCanvas.clientWidth+"  "+mainCanvas.clientHeight);
     scaleX = mainCanvas.clientWidth/1918;
     scaleY = mainCanvas.clientHeight/916;
     context = mainCanvas.getContext("2d"); 
     initializeSizes();
     await generateMaze();
+    calcGrid(gridArray);
+    for(let i=0;i<collisionLines.length;i++){
+        let tempPoint1 = {x:collisionLines[i].x1,y:collisionLines[i].y1};
+        let tempPoint2 = {x:collisionLines[i].x2,y:collisionLines[i].y2}
+        tempPoint1 = angleOf(tempPoint1,center);
+        tempPoint2 = angleOf(tempPoint2,center);
+        angles.push({p1:tempPoint1,p2:tempPoint2});
+    }
     window.addEventListener("keydown",keyBoolean,true);
     window.addEventListener("keyup",stop,true);
     tick();
@@ -40,8 +50,11 @@ async function tick(){
         begin.x+= 10;
         date = Date.now();
     }*/
-    calcGrid(gridArray);
+    rotateGrid(collisionLines,angle);
     drawGrid(collisionLines);
+    if(angle >= 360)
+        angle = 0;
+    angle++;
     context.beginPath();
     context.strokeStyle = "#00FF00";
     context.fillStyle = "#00FF00";
@@ -122,13 +135,9 @@ function stop(e){
 function checkCollisions(e){
     for(let i=0;i<collisionLines.length;i++){
         if(lineIntersectCircle(collisionLines[i],playerPos)<playerPos.r){
-            console.log(collisionLines[i]);
             playerPos.x=playerPos.startX;
             playerPos.y=playerPos.startY;
             document.getElementById("info").innerHTML = "ded";
-        }
-        else{
-            
         }
     }
 }
@@ -138,18 +147,27 @@ function lineIntersectCircle(line, circle){
 function calcGrid(gridArray){
     collisionLines = [];
     let r = Math.sqrt(2)*cellSize.width/2;
-    let angle = 90;
-    let startAngle = -45;
-    let center={
-        x:begin.x+mazeSize.width*cellSize.width/2,
-        y:begin.x+mazeSize.height*cellSize.height/2
-    }
     for(let i=0;i<gridArray.length;i++){
         for(let j=0;j<gridArray[i].length;j++){
             for(let k=0;k<gridArray[i][j].length;k++){
-                if(gridArray[i][j].charAt(k) == "1"){               
-                    collisionLines.push({x1:begin.x+Math.cos(toRadians(startAngle+angle*(k-1)))*r+cellSize.width*j,y1:begin.y+Math.sin(toRadians(startAngle+angle*(k-1)))*r+cellSize.height*i,
-                    x2:begin.x+Math.cos(toRadians(startAngle+angle*(k)))*r+cellSize.width*j,y2:begin.y+Math.sin(toRadians(startAngle+angle*(k)))*r+cellSize.height*i});
+                if(gridArray[i][j].charAt(k) == "1"){          
+                    if(k == 0){
+                        collisionLines.push({x1:begin.x+Math.cos(toRadians(-45+90*(k-1)))*r+cellSize.width*j,y1:begin.y+Math.sin(toRadians(-45+90*(k-1)))*r+cellSize.height*i,
+                        x2:begin.x+Math.cos(toRadians(-45+90*(k)))*r+cellSize.width*j+1,y2:begin.y+Math.sin(toRadians(-45+90*(k)))*r+cellSize.height*i});
+                    }  
+                    else if(k == 1){
+                        collisionLines.push({x1:begin.x+Math.cos(toRadians(-45+90*(k-1)))*r+cellSize.width*j,y1:begin.y+Math.sin(toRadians(-45+90*(k-1)))*r+cellSize.height*i,
+                        x2:begin.x+Math.cos(toRadians(-45+90*(k)))*r+cellSize.width*j,y2:begin.y+Math.sin(toRadians(-45+90*(k)))*r+cellSize.height*i+1});
+                    }   
+                    else if(k == 2){
+                        collisionLines.push({x1:begin.x+Math.cos(toRadians(-45+90*(k-1)))*r+cellSize.width*j+1,y1:begin.y+Math.sin(toRadians(-45+90*(k-1)))*r+cellSize.height*i,
+                        x2:begin.x+Math.cos(toRadians(-45+90*(k)))*r+cellSize.width*j,y2:begin.y+Math.sin(toRadians(-45+90*(k)))*r+cellSize.height*i});
+                    }
+                    else if(k == 3){
+                        collisionLines.push({x1:begin.x+Math.cos(toRadians(-45+90*(k-1)))*r+cellSize.width*j,y1:begin.y+Math.sin(toRadians(-45+90*(k-1)))*r+cellSize.height*i+1,
+                        x2:begin.x+Math.cos(toRadians(-45+90*(k)))*r+cellSize.width*j,y2:begin.y+Math.sin(toRadians(-45+90*(k)))*r+cellSize.height*i});
+                    }
+                   
                 }
             }
         }
@@ -174,8 +192,20 @@ function drawGrid(gridToDraw){
 function toRadians(angle){
     return angle*(Math.PI/180);
 }
-function beginGame(){
-    
+function rotateGrid(collisionLines,angle){
+    for(let i=0;i<collisionLines.length;i++){
+        let point1 = {x:collisionLines[i].x1,y:collisionLines[i].y1};
+        let point2 = {x:collisionLines[i].x2,y:collisionLines[i].y2};
+        collisionLines[i].x1 = center.x+Math.cos(toRadians(angle+angles[i].p1))*distanceBetween(point1,center);
+        collisionLines[i].y1 = center.y+Math.sin(toRadians(angle+angles[i].p1))*distanceBetween(point1,center);
+        collisionLines[i].x2 = center.x+Math.cos(toRadians(angle+angles[i].p2))*distanceBetween(point2,center);
+        collisionLines[i].y2 = center.y+Math.sin(toRadians(angle+angles[i].p2))*distanceBetween(point2,center);
+    }
+}
+function angleOf(p1,p2){
+    let deltaY = (p1.y-p2.y);
+    let deltaX = (p1.x-p2.x);
+    return Math.atan2(deltaY,deltaX)*(180/Math.PI);
 }
 async function generateMaze(){
     gridArray = Array(mazeSize.height).fill().map(() => Array(mazeSize.width).fill("1111"));
@@ -255,7 +285,6 @@ async function solveMaze(){
         while(true){
             let index = Math.floor(Math.random()*4);
             if(checked.length >= 4){
-				console.log("yes");
                 stack.pop();
                 cellsToDraw.pop();
                 cellsToDraw.push(cellsToDraw.push({cell:currentCell,color:"#FF0000"}));
@@ -337,6 +366,10 @@ function initializeSizes(){
     mazeSize={
         width:17,
         height:17,
+    }
+    center={
+        x:(begin.x+cellSize.width*mazeSize.width)/2,
+        y:(begin.y+cellSize.width*mazeSize.width)/2,
     }
 }
 function sleep(ms) {
