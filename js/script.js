@@ -63,12 +63,12 @@ async function tick(){
     if(angle >= 360)
         angle = 0;
     angle+=0.1;
-	cellSize.width+=change;
+	/*cellSize.width+=change;
 	cellSize.height+=change;
 	if(cellSize.width >= 80)
 		change=-1;
 	if(cellSize.width <= 40)
-		change=1;
+		change=1;*/
     context.beginPath();
     context.strokeStyle = "#00FF00";
     context.fillStyle = "#00FF00";
