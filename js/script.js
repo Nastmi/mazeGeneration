@@ -28,6 +28,7 @@ let endAngle;
 let startAngle;
 let rotate = true;
 let change = 1;
+let moved = false;
 async function initializeCanvas(){
     mainCanvas = document.getElementById("drawCanvas");
     mainCanvas.width = mainCanvas.clientWidth;
@@ -57,12 +58,12 @@ async function tick(){
         date = Date.now();
     }*/
 	calcGrid(gridArray);
-	if(rotate)
-		rotateGrid(collisionLines,angle);
+	rotateGrid(collisionLines,angle);
     drawGrid(collisionLines);
     if(angle >= 360)
         angle = 0;
-    angle+=0.1;
+    if(rotate)
+        angle+=0.1;
 	/*cellSize.width+=change;
 	cellSize.height+=change;
 	if(cellSize.width >= 80)
@@ -78,7 +79,11 @@ async function tick(){
     changeSpeed();
     checkCollisions();
     movePlayer();
-	if(pointInsideCircle(playerPos,endCellInfo)){
+    if(!moved){
+        playerPos.x = playerPos.startX;
+        playerPos.y = playerPos.startY;
+    }
+    if(pointInsideCircle(playerPos,endCellInfo)){
 		rotate = false;
 		document.getElementById("info").innerHTML = "win";
 	}
@@ -87,9 +92,6 @@ async function tick(){
 function movePlayer(){
     playerPos.x+=speedX;
     playerPos.y+=speedY;
-}
-async function checkBegin(e){
-     
 }
 function pointInsideCircle(circle, point){
     point ={
@@ -105,6 +107,7 @@ function distanceBetween(a,b){
     return Math.sqrt(((a.x-b.x)*(a.x-b.x))+((a.y-b.y)*(a.y-b.y)));
 }
 function keyBoolean(e){
+    moved = true;
     switch(e.keyCode){
         case 37:
             keysDown.left = true;
@@ -158,6 +161,7 @@ function checkCollisions(e){
             if(pointInsideCircle(playerPos,{x:pointX,y:pointY})){
                 playerPos.x=playerPos.startX;
                 playerPos.y=playerPos.startY;
+                moved = false;
             }
         }
         
