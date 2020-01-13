@@ -33,7 +33,7 @@ async function initializeCanvas(){
     mainCanvas = document.getElementById("drawCanvas");
     mainCanvas.width = mainCanvas.clientWidth;
     mainCanvas.height = mainCanvas.clientHeight;
-    scaleX = mainCanvas.clientWidth/1918;
+    scaleX = mainCanvas.clientWidth/838;
     scaleY = mainCanvas.clientHeight/916;
     context = mainCanvas.getContext("2d"); 
     initializeSizes();
@@ -86,7 +86,8 @@ async function tick(){
     if(pointInsideCircle(playerPos,endCellInfo)){
 		rotate = false;
 		document.getElementById("info").innerHTML = "win";
-	}
+    }
+    drawCell(center);
     requestAnimationFrame(tick);
 }
 function movePlayer(){
@@ -238,71 +239,76 @@ function angleOf(p1,p2){
     return Math.atan2(deltaY,deltaX)*(180/Math.PI);
 }
 async function generateMaze(){
-    gridArray = Array(mazeSize.height).fill().map(() => Array(mazeSize.width).fill("1111"));
-    let visited = [];
-    let stack = [];
-    let checked = [];
-   // let rnd = Math.trunc(Math.random()*15);
-    let currentCell = Math.floor(Math.random()*(mazeSize.height*mazeSize.width-1));
-    while(visited.length < mazeSize.width*mazeSize.height){
-        if(!visited.includes(currentCell))
-            visited.push(currentCell);
-        if(!stack.includes(currentCell))
-            stack.push(currentCell);
-        let sur = returnSurroundingCells(currentCell, mazeSize.width);
-        let index = Math.floor(Math.random()*4);
-        if(checked.length >= 4){
-            stack.pop();
-            cellsToDraw.pop();
-            cellsToDraw.push(cellsToDraw.push({cell:currentCell,color:"#FF0000"}));
-            currentCell = stack[stack.length-1];
-            checked = [];
-            //rnd = Math.trunc(Math.random()*15);
-            continue;
-        }
-        if(sur[index]<0 || sur[index]>mazeSize.width*mazeSize.height-1 || (index == 1 && sur[index]%mazeSize.width == 0) || (index == 3 && sur[index]%mazeSize.width == mazeSize.width-1)){
-            if(!checked.includes(index))
-                checked.push(index);
-            continue;
-        }
-        else{
-            if(visited.includes(sur[index])){
-                if(!checked.includes(index)){
+    try{
+        gridArray = Array(mazeSize.height).fill().map(() => Array(mazeSize.width).fill("1111"));
+        let visited = [];
+        let stack = [];
+        let checked = [];
+    // let rnd = Math.trunc(Math.random()*15);
+        let currentCell = Math.floor(Math.random()*(mazeSize.height*mazeSize.width-1));
+        while(visited.length < mazeSize.width*mazeSize.height){
+            if(!visited.includes(currentCell))
+                visited.push(currentCell);
+            if(!stack.includes(currentCell))
+                stack.push(currentCell);
+            let sur = returnSurroundingCells(currentCell, mazeSize.width);
+            let index = Math.floor(Math.random()*4);
+            if(checked.length >= 4){
+                stack.pop();
+                cellsToDraw.pop();
+                cellsToDraw.push(cellsToDraw.push({cell:currentCell,color:"#FF0000"}));
+                currentCell = stack[stack.length-1];
+                checked = [];
+                //rnd = Math.trunc(Math.random()*15);
+                continue;
+            }
+            if(sur[index]<0 || sur[index]>mazeSize.width*mazeSize.height-1 || (index == 1 && sur[index]%mazeSize.width == 0) || (index == 3 && sur[index]%mazeSize.width == mazeSize.width-1)){
+                if(!checked.includes(index))
                     checked.push(index);
-                }
                 continue;
             }
             else{
-                gridArray[Math.trunc(currentCell/mazeSize.width)][currentCell%mazeSize.width] = replaceCharAt(gridArray[Math.trunc(currentCell/mazeSize.width)][currentCell%mazeSize.width],index,"0");
-                currentCell = sur[index];
-                switch(index){
-                    case 0:
-                    case 1:index=index+2;break;
-                    case 2:
-                    case 3:index=index-2;break;
+                if(visited.includes(sur[index])){
+                    if(!checked.includes(index)){
+                        checked.push(index);
+                    }
+                    continue;
                 }
-                gridArray[Math.trunc(currentCell/mazeSize.width)][currentCell%mazeSize.width] = replaceCharAt(gridArray[Math.trunc(currentCell/mazeSize.width)][currentCell%mazeSize.width],index,"0");
-                cellsToDraw.push({cell:currentCell,color:"#0000FF"});
-               // rnd = Math.trunc(Math.random()*15);
-                continue;
+                else{
+                    gridArray[Math.trunc(currentCell/mazeSize.width)][currentCell%mazeSize.width] = replaceCharAt(gridArray[Math.trunc(currentCell/mazeSize.width)][currentCell%mazeSize.width],index,"0");
+                    currentCell = sur[index];
+                    switch(index){
+                        case 0:
+                        case 1:index=index+2;break;
+                        case 2:
+                        case 3:index=index-2;break;
+                    }
+                    gridArray[Math.trunc(currentCell/mazeSize.width)][currentCell%mazeSize.width] = replaceCharAt(gridArray[Math.trunc(currentCell/mazeSize.width)][currentCell%mazeSize.width],index,"0");
+                    cellsToDraw.push({cell:currentCell,color:"#0000FF"});
+                // rnd = Math.trunc(Math.random()*15);
+                    continue;
+                }
             }
+        /* cellsToDraw.forEach(cell => drawCell(cell.cell,cell.color));
+            await sleep(100);*/
         }
-       /* cellsToDraw.forEach(cell => drawCell(cell.cell,cell.color));
-        await sleep(100);*/
+        startCell = returnEdgeCell();
+        playerPos={
+            startX:begin.x+cellSize.width*(startCell%mazeSize.width),
+            startY:begin.y+cellSize.height*Math.trunc(startCell/mazeSize.width),
+            x:begin.x+cellSize.width*(startCell%mazeSize.width),
+            y:begin.y+cellSize.height*Math.trunc(startCell/mazeSize.width),
+            r:8,
+        }
+        endCell = returnEdgeCell();
+        endCellInfo={
+            x:begin.x+cellSize.width*(endCell%mazeSize.width),
+            y:begin.y+cellSize.height*Math.trunc(endCell/mazeSize.width),
+            r:8,
+        }
     }
-    startCell = returnEdgeCell();
-    playerPos={
-        startX:begin.x+cellSize.width*(startCell%mazeSize.width),
-        startY:begin.y+cellSize.height*Math.trunc(startCell/mazeSize.width),
-        x:begin.x+cellSize.width*(startCell%mazeSize.width),
-        y:begin.y+cellSize.height*Math.trunc(startCell/mazeSize.width),
-        r:8,
-    }
-    endCell = returnEdgeCell();
-    endCellInfo={
-        x:begin.x+cellSize.width*(endCell%mazeSize.width),
-        y:begin.y+cellSize.height*Math.trunc(endCell/mazeSize.width),
-		r:8,
+    catch(err){
+        initializeCanvas();
     }
 
 }
@@ -391,22 +397,24 @@ function changeScale(){
     context.clearRect(0,0,mainCanvas.clientWidth,mainCanvas.clientHeight);
 }
 function initializeSizes(){
-    begin={
-        x:500*scaleX,
-        y:170*scaleX,
-    }
+    let rect = mainCanvas.getBoundingClientRect();
     cellSize={
-        width:50*scaleX,
-        height:50 	*scaleX,
+        width:45*scaleX,
+        height:45*scaleX,
     }
     mazeSize={
         width:13,
         height:13,
     }
+    begin={
+        x:(rect.x+mainCanvas.clientWidth/2)-(cellSize.width*mazeSize.width/2)-rect.left,
+        y:(rect.y+mainCanvas.clientHeight/2)-(cellSize.height*mazeSize.height/2)-rect.top,
+    }
     center={
         x:(begin.x+cellSize.width*mazeSize.width/2),
         y:(begin.y+cellSize.height*mazeSize.height/2),
     }
+    console.log((rect.x+mainCanvas.clientWidth/2)-(cellSize.width*mazeSize.width/2)+" ");
 }
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));

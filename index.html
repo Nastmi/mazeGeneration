@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Maze</title>
+        <title>Spinning Mazes</title>
         <link rel="stylesheet" type="text/css" href="css/style.css"/>
         <script src="js/script.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400&display=swap" rel="stylesheet"> 
@@ -9,13 +9,15 @@
     </head>
     <body>
         <div id="wrap"> 
-            
             <div id="drawing">
-                <canvas id="drawCanvas" >
-                </canvas>
-                <button onclick="solveMaze()">SOLVE</button>
-                <span  id="info" style="color:white">info</span>
+                <div id="beforeAfter"></div>
+                <div id="canvasDiv">
+                    <canvas id="drawCanvas">
+                    </canvas>
+                </div>
+                <div id="beforeAfter"></div>
             </div>
+        </div>
         <script>
             window.onload = initializeCanvas();
         </script>
