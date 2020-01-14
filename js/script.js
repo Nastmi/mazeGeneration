@@ -51,13 +51,14 @@ async function initializeCanvas(){
     startAngle = angleOf({x:playerPos.startX,y:playerPos.startY},center);
     window.addEventListener("keydown",keyBoolean,true);
     window.addEventListener("keyup",stop,true);
+    tutorial(); 
     tick();
 }
 async function tick(){
-    /*if(Date.now()-date >= 10 && begin.x+mazeSize.width*cellSize.width < mainCanvas.clientWidth){
-        begin.x+= 10;
+    if(Date.now()-date >= 100){
+        animateArrows();
         date = Date.now();
-    }*/
+    }
 	calcGrid(gridArray);
 	rotateGrid(collisionLines,angle);
     drawGrid(collisionLines);
@@ -86,6 +87,30 @@ async function tick(){
     drawPlayer();
     requestAnimationFrame(tick);
 }
+function animateArrows(){
+    let arr = document.getElementsByClassName("arrows");
+    for(let i=0;i<arr.length;i++){
+        arr[i].style.transform = "scale:(0.9);";
+    }
+}
+function tutorial(){
+    for(let i=1;i<5;i++){
+        let parent = document.getElementById("images");
+        let el;
+        el = document.createElement("img");
+        parent.appendChild(el);
+        el.src = "icons/arrow"+i+".png";
+        el.style.width = "70px";
+        el.style.height = "70px";
+        el.className = "arrows";
+        if(i == 1){
+            el.style.marginLeft = "70px";
+            el = document.createElement("br");
+            parent.appendChild(el);
+        }
+    }
+}
+
 function movePlayer(){
     playerPos.x+=speedX;
     playerPos.y+=speedY;
@@ -403,8 +428,8 @@ function changeScale(){
 function initializeSizes(){
     let rect = mainCanvas.getBoundingClientRect();
     cellSize={
-        width:40*scaleX,
-        height:40*scaleX,
+        width:44*scaleX,
+        height:44*scaleX,
     }
     mazeSize={
         width:16,
