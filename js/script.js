@@ -33,8 +33,9 @@ async function initializeCanvas(){
     mainCanvas = document.getElementById("drawCanvas");
     mainCanvas.width = mainCanvas.clientWidth;
     mainCanvas.height = mainCanvas.clientHeight;
-    scaleX = mainCanvas.clientWidth/838;
+    scaleX = mainCanvas.clientWidth/1006;
     scaleY = mainCanvas.clientHeight/916;
+    console.log(mainCanvas.clientWidth);
     context = mainCanvas.getContext("2d"); 
     initializeSizes();
     await generateMaze();
@@ -71,11 +72,6 @@ async function tick(){
 	if(cellSize.width <= 40)
 		change=1;*/
     context.beginPath();
-    context.strokeStyle = "#00FF00";
-    context.fillStyle = "#00FF00";
-    context.arc(playerPos.x,playerPos.y,8,0,Math.PI*2);
-    context.fill();
-    context.stroke();
     changeSpeed();
     checkCollisions();
     movePlayer();
@@ -87,12 +83,21 @@ async function tick(){
 		rotate = false;
 		document.getElementById("info").innerHTML = "win";
     }
-    drawCell(center);
+    drawPlayer();
     requestAnimationFrame(tick);
 }
 function movePlayer(){
     playerPos.x+=speedX;
     playerPos.y+=speedY;
+}
+function drawPlayer(){
+    let quarter = cellSize.width/6;
+
+    context.strokeStyle = "#00FF00";
+    context.fillStyle = "#00FF00";
+    context.arc(playerPos.x,playerPos.y,quarter,0,Math.PI*2);
+    context.fill();
+    context.stroke();
 }
 function pointInsideCircle(circle, point){
     point ={
@@ -113,7 +118,7 @@ function keyBoolean(e){
         case 37:
             keysDown.left = true;
             break;
-        case 38:
+        case 38:    
             keysDown.up = true;
             break;
         case 39:
@@ -200,7 +205,7 @@ function drawGrid(gridToDraw){
     context.strokeStyle="#FFFFFF";
     context.fillStyle = "#FFFFFF";
     context.clearRect(0,0,mainCanvas.clientWidth,mainCanvas.clientHeight);
-    context.lineWidth = 2;
+    context.lineWidth = 1;
     for(let i=0;i<gridToDraw.length;i++){
         context.beginPath();
         context.moveTo(gridToDraw[i].x1,gridToDraw[i].y1);
@@ -388,33 +393,31 @@ function replaceCharAt(string, index, replace){
 }
 window.onresize = changeScale;
 function changeScale(){
+    scaleX = mainCanvas.clientWidth/1006;
+    scaleY = mainCanvas.clientHeight/916;
     mainCanvas.width = mainCanvas.clientWidth;
     mainCanvas.height = mainCanvas.clientHeight;
-    scaleX = mainCanvas.clientWidth/1918;
-    scaleY = mainCanvas.clientHeight/916;
-
     initializeSizes();
     context.clearRect(0,0,mainCanvas.clientWidth,mainCanvas.clientHeight);
 }
 function initializeSizes(){
     let rect = mainCanvas.getBoundingClientRect();
     cellSize={
-        width:45*scaleX,
-        height:45*scaleX,
+        width:40*scaleX,
+        height:40*scaleX,
     }
     mazeSize={
-        width:13,
-        height:13,
+        width:16,
+        height:16,
     }
     begin={
-        x:(rect.x+mainCanvas.clientWidth/2)-(cellSize.width*mazeSize.width/2)-rect.left,
-        y:(rect.y+mainCanvas.clientHeight/2)-(cellSize.height*mazeSize.height/2)-rect.top,
+        x:(rect.x+mainCanvas.clientWidth/2)-(cellSize.width*mazeSize.width/2-cellSize.width/2)-rect.left,
+        y:(rect.y+mainCanvas.clientHeight/2)-(cellSize.height*mazeSize.height/2-cellSize.height/2)-rect.top,
     }
     center={
-        x:(begin.x+cellSize.width*mazeSize.width/2),
-        y:(begin.y+cellSize.height*mazeSize.height/2),
+        x:(begin.x+cellSize.width*mazeSize.width/2-cellSize.width/2),
+        y:(begin.y+cellSize.height*mazeSize.height/2-cellSize.height/2),
     }
-    console.log((rect.x+mainCanvas.clientWidth/2)-(cellSize.width*mazeSize.width/2)+" ");
 }
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
