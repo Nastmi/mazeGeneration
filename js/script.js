@@ -33,9 +33,9 @@ async function initializeCanvas(){
     mainCanvas = document.getElementById("drawCanvas");
     mainCanvas.width = mainCanvas.clientWidth;
     mainCanvas.height = mainCanvas.clientHeight;
-    scaleX = mainCanvas.clientWidth/1006;
-    scaleY = mainCanvas.clientHeight/916;
-    console.log(mainCanvas.clientWidth);
+    scaleX = mainCanvas.clientWidth/1176;
+	console.log(scaleX);
+    //scaleY = mainCanvas.clientHeight/916;
     context = mainCanvas.getContext("2d"); 
     initializeSizes();
     await generateMaze();
@@ -418,22 +418,26 @@ function replaceCharAt(string, index, replace){
 }
 window.onresize = changeScale;
 function changeScale(){
-    scaleX = mainCanvas.clientWidth/1006;
-    scaleY = mainCanvas.clientHeight/916;
+    scaleX = mainCanvas.clientWidth/1176;
+    //scaleY = mainCanvas.clientHeight/916;
     mainCanvas.width = mainCanvas.clientWidth;
     mainCanvas.height = mainCanvas.clientHeight;
     initializeSizes();
+	playerPos.x = playerPos.x*scaleX;
+	playerPos.y = playerPos.y*scaleX;
+	endCellInfo.x = endCellInfo.x*scaleX;
+	endCellInfo.y = endCellInfo.y*scaleX;
     context.clearRect(0,0,mainCanvas.clientWidth,mainCanvas.clientHeight);
 }
 function initializeSizes(){
     let rect = mainCanvas.getBoundingClientRect();
     cellSize={
-        width:44*scaleX,
-        height:44*scaleX,
+        width:45*scaleX,
+        height:45*scaleX,
     }
     mazeSize={
-        width:16,
-        height:16,
+        width:15,
+        height:15,
     }
     begin={
         x:(rect.x+mainCanvas.clientWidth/2)-(cellSize.width*mazeSize.width/2-cellSize.width/2)-rect.left,
