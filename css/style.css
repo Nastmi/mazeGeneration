@@ -41,8 +41,11 @@
 }
 #newButton{
      margin-top:10px;		
-     width:50px;
-     height:30px;
-     color:white; 
-     background-color:black;	
+     width:70px;
+     height:50px;
+	border-radius:10px;
+     color:black; 
+     background-color:white; 
+     border:none; 	
+	
 }
