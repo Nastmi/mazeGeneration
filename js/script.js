@@ -83,6 +83,7 @@ async function tick(){
     if(pointInsideCircle(playerPos,endCellInfo)){
 		rotate = false;
 		document.getElementById("info").innerHTML = "win";
+	    document.getElementById("win").innerHTML = "You won!";
     }
     drawPlayer();
     requestAnimationFrame(tick);
