@@ -240,7 +240,7 @@ function drawGrid(gridToDraw){
     if(typeof startCell !="undefined")
         drawCell({x:playerPos.startX,y:playerPos.startY},"#0000FF");
     if(typeof endCell !="undefined")
-        drawCell(endCellInfo,"#FF0000");
+        drawCell(endCellInfo,"#0000FF");
 }
 function toRadians(angle){
     return angle*(Math.PI/180);
