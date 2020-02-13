@@ -268,6 +268,23 @@ function angleOf(p1,p2){
     let deltaX = (p1.x-p2.x);
     return Math.atan2(deltaY,deltaX)*(180/Math.PI);
 }
+async function newMaze(){
+    collisionLines = [];
+    angles = []; 	
+	
+    initializeSizes();
+    await generateMaze();
+    calcGrid(gridArray);
+    for(let i=0;i<collisionLines.length;i++){
+        let tempPoint1 = {x:collisionLines[i].x1,y:collisionLines[i].y1};
+        let tempPoint2 = {x:collisionLines[i].x2,y:collisionLines[i].y2}
+        tempPoint1 = angleOf(tempPoint1,center);
+        tempPoint2 = angleOf(tempPoint2,center);
+        angles.push({p1:tempPoint1,p2:tempPoint2});
+    }
+    endAngle = angleOf(endCellInfo,center);
+    startAngle = angleOf({x:playerPos.startX,y:playerPos.startY},center);
+}
 async function generateMaze(){
     try{
         gridArray = Array(mazeSize.height).fill().map(() => Array(mazeSize.width).fill("1111"));
