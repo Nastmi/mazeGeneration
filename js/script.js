@@ -356,7 +356,7 @@ async function generateMaze(){
         }
     }
     catch(err){
-        initializeCanvas();
+        newMaze();
     }
 
 }
