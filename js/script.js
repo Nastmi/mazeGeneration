@@ -65,7 +65,7 @@ async function tick(){
     if(angle >= 360)
         angle = 0;
     if(rotate)
-        angle+=0.1;
+        angle+=0.3;
 	/*cellSize.width+=change;
 	cellSize.height+=change;
 	if(cellSize.width >= 80)
@@ -156,14 +156,14 @@ function keyBoolean(e){
     }
 }
 function changeSpeed(){
-        if(speedX>-2 && keysDown.left)
-            speedX-=2;
-        if(speedY>-2 && keysDown.up)
-            speedY-=2;
-        if(speedX<2 && keysDown.right)
-            speedX+=2;
-        if(speedY<2 && keysDown.down)
-            speedY+=2;
+        if(speedX>-3 && keysDown.left)
+            speedX-=3;
+        if(speedY>-3 && keysDown.up)
+            speedY-=3;
+        if(speedX<3 && keysDown.right)
+            speedX+=3;
+        if(speedY<3 && keysDown.down)
+            speedY+=3;
         if(!keysDown.left && !keysDown.right)    
             speedX=0;
         if(!keysDown.up && !keysDown.down)    
@@ -272,7 +272,7 @@ function angleOf(p1,p2){
 async function newMaze(){
     collisionLines = [];
     angles = []; 	
-	
+	rotate = true;
     initializeSizes();
     await generateMaze();
     calcGrid(gridArray);
