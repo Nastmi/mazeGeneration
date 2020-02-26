@@ -5,6 +5,7 @@
         <link rel="stylesheet" type="text/css" href="css/style.css"/>
         <script src="js/script.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400&display=swap" rel="stylesheet"> 
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
         <meta charset="UTF-8">
     </head>
     <body>
@@ -15,24 +16,66 @@
                     </canvas>
                 </div>
                 <div id="after">
-                    <div id="images">
+                    <div id="imagesF">
+                        <img src="icons/arrow1.png" width="70px" height="70px">
+            
 
                     </div>
-					<div>
+                    <div id="imagesS">
+                        <img src="icons/arrow2.png" width="70px" height="70px">
+                        <img src="icons/arrow3.png" width="70px" height="70px">
+                        <img src="icons/arrow4.png" width="70px" height="70px">
+
+                    </div>
+					<div id="info">
 						Use the arrow keys to move the green dot from one blue circle to the other blue circle.
 						Avoid touching the walls or you will start over! The maze will spin so the game
 						is harder!
-					</div>
-			<div style="display:flex;justify-content:center;">
-				<button onclick="newMaze()" id="newButton">New maze</button>
+                    </div>
+            <div id="win1" style="display:flex;justify-content:center"><p id="win">You are currently playing</p></div>
+            <div>
+                <div class="centerJustify">
+                    <p>Press the new maze button to generate an new maze based on the chose size.</p>
+                </div>
+				<div class="centerJustify">
+                    <button onclick="newMaze()" id="newButton" >New maze</button>
+                </div>
 		
-			</div>
-			<div id="win1" style="display:flex;justify-content:center"><p id="win">You are currently playing</p></div>
+            </div>
+            <div>
+                <div class="centerJustify">
+                    <p>Below you can choose the width and height of the maze, measured in cells. To apply it press the new maze button.</p><br/>
+                </div>
+                <div class="centerJustify">
+                    <input type="range" min="2" max="20" value="15" id="rangeSlider" oninput="changeSize()"> 
+                </div>
+                <div class="centerJustify">
+                    <p id="curSize">15</p>
+                </div>
+            </div>
+                <div class="centerJustify">
+                    <p>Below you can choose the spinning speed of the maze, to make the game harder.</p>
+                </div>
+                <div class="centerJustify">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Stopped
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" onclick="changeRotationSpeed(0.0,this.innerHTML)">Stopped</a>
+                        <a class="dropdown-item" onclick="changeRotationSpeed(0.1,this.innerHTML)">Slow</a>
+                        <a class="dropdown-item" onclick="changeRotationSpeed(0.2,this.innerHTML)">Fast</a>
+                        <a class="dropdown-item" onclick="changeRotationSpeed(0.3,this.innerHTML)">Faster</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <script>
             window.onload = initializeCanvas();
         </script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     </body>
 </html>

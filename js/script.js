@@ -1,7 +1,5 @@
 let mainCanvas;
 let context;
-let scaleX;
-let scaleY;
 let startCell;
 let endCell;
 let endCellInfo;
@@ -27,17 +25,16 @@ let angles = [];
 let endAngle;
 let startAngle;
 let rotate = true;
-let change = 1;
+let change = 0.0;
 let moved = false;
+let cellNum = 15;
 async function initializeCanvas(){
+    document.getElementById("rangeSlider").value = "15";
     mainCanvas = document.getElementById("drawCanvas");
     mainCanvas.width = mainCanvas.clientWidth;
     mainCanvas.height = mainCanvas.clientHeight;
-    scaleX = mainCanvas.clientWidth/1176;
-	console.log(scaleX);
-    //scaleY = mainCanvas.clientHeight/916;
     context = mainCanvas.getContext("2d"); 
-    initializeSizes();
+    initializeSizes(mainCanvas.width,mainCanvas.height, 15);
     await generateMaze();
     calcGrid(gridArray);
     for(let i=0;i<collisionLines.length;i++){
@@ -51,12 +48,10 @@ async function initializeCanvas(){
     startAngle = angleOf({x:playerPos.startX,y:playerPos.startY},center);
     window.addEventListener("keydown",keyBoolean,true);
     window.addEventListener("keyup",stop,true);
-    tutorial(); 
     tick();
 }
 async function tick(){
     if(Date.now()-date >= 100){
-        animateArrows();
         date = Date.now();
     }
 	calcGrid(gridArray);
@@ -65,7 +60,7 @@ async function tick(){
     if(angle >= 360)
         angle = 0;
     if(rotate)
-        angle+=0.3;
+        angle+=change;
 	/*cellSize.width+=change;
 	cellSize.height+=change;
 	if(cellSize.width >= 80)
@@ -80,37 +75,14 @@ async function tick(){
         playerPos.x = playerPos.startX;
         playerPos.y = playerPos.startY;
     }
-    if(pointInsideCircle(playerPos,endCellInfo)){
+    if(circleInsideCircle(playerPos,endCellInfo)){
 		rotate = false;
-		document.getElementById("info").innerHTML = "win";
 	    document.getElementById("win").innerHTML = "You won!";
     }
     drawPlayer();
     requestAnimationFrame(tick);
 }
-function animateArrows(){
-    let arr = document.getElementsByClassName("arrows");
-    for(let i=0;i<arr.length;i++){
-        arr[i].style.transform = "scale:(0.9);";
-    }
-}
-function tutorial(){
-    for(let i=1;i<5;i++){
-        let parent = document.getElementById("images");
-        let el;
-        el = document.createElement("img");
-        parent.appendChild(el);
-        el.src = "icons/arrow"+i+".png";
-        el.style.width = "70px";
-        el.style.height = "70px";
-        el.className = "arrows";
-        if(i == 1){
-            el.style.marginLeft = "70px";
-            el = document.createElement("br");
-            parent.appendChild(el);
-        }
-    }
-}
+
 
 function movePlayer(){
     playerPos.x+=speedX;
@@ -118,7 +90,6 @@ function movePlayer(){
 }
 function drawPlayer(){
     let quarter = cellSize.width/6;
-
     context.strokeStyle = "#00FF00";
     context.fillStyle = "#00FF00";
     context.arc(playerPos.x,playerPos.y,quarter,0,Math.PI*2);
@@ -134,6 +105,16 @@ function pointInsideCircle(circle, point){
         return true;
     }
     return false;
+}
+function distanceBetweenCircle(circle1,circle2){    
+    return Math.sqrt((circle2.x-circle1.x)*(circle2.x-circle1.x)+(circle2.y-circle1.y)*(circle2.y-circle1.y));
+}
+function circleInsideCircle(circle1,circle2){
+    if(distanceBetweenCircle(circle1,circle2) < circle1.r+circle2.r){
+        return true;
+    }
+    return false;
+
 }
 function distanceBetween(a,b){
     return Math.sqrt(((a.x-b.x)*(a.x-b.x))+((a.y-b.y)*(a.y-b.y)));
@@ -156,14 +137,14 @@ function keyBoolean(e){
     }
 }
 function changeSpeed(){
-        if(speedX>-3 && keysDown.left)
-            speedX-=3;
-        if(speedY>-3 && keysDown.up)
-            speedY-=3;
-        if(speedX<3 && keysDown.right)
-            speedX+=3;
-        if(speedY<3 && keysDown.down)
-            speedY+=3;
+        if(speedX>-2 && keysDown.left)
+            speedX-=2;
+        if(speedY>-2 && keysDown.up)
+            speedY-=2;
+        if(speedX<2 && keysDown.right)
+            speedX+=2;
+        if(speedY<2 && keysDown.down)
+            speedY+=2;
         if(!keysDown.left && !keysDown.right)    
             speedX=0;
         if(!keysDown.up && !keysDown.down)    
@@ -272,8 +253,8 @@ function angleOf(p1,p2){
 async function newMaze(){
     collisionLines = [];
     angles = []; 	
-	rotate = true;
-    initializeSizes();
+    rotate = true;
+    initializeSizes(mainCanvas.width,mainCanvas.height);
     await generateMaze();
     calcGrid(gridArray);
     for(let i=0;i<collisionLines.length;i++){
@@ -285,6 +266,15 @@ async function newMaze(){
     }
     endAngle = angleOf(endCellInfo,center);
     startAngle = angleOf({x:playerPos.startX,y:playerPos.startY},center);
+}
+function changeSize(){
+    cellNum = parseInt(document.getElementById("rangeSlider").value);
+    document.getElementById("curSize").innerHTML = cellNum;
+    
+}
+function changeRotationSpeed(newSpeed, title){
+    change = newSpeed;
+    document.getElementById("dropdownButton").innerHTML = title;
 }
 async function generateMaze(){
     try{
@@ -346,13 +336,13 @@ async function generateMaze(){
             startY:begin.y+cellSize.height*Math.trunc(startCell/mazeSize.width),
             x:begin.x+cellSize.width*(startCell%mazeSize.width),
             y:begin.y+cellSize.height*Math.trunc(startCell/mazeSize.width),
-            r:8,
+            r:cellSize.width/8,
         }
         endCell = returnEdgeCell();
         endCellInfo={
             x:begin.x+cellSize.width*(endCell%mazeSize.width),
             y:begin.y+cellSize.height*Math.trunc(endCell/mazeSize.width),
-            r:8,
+            r:cellSize.width/2,
         }
     }
     catch(err){
@@ -360,7 +350,7 @@ async function generateMaze(){
     }
 
 }
-async function solveMaze(){
+/*async function solveMaze(){
     let visited = [];
     let stack = [];
     cellsToDraw = [];
@@ -403,9 +393,9 @@ async function solveMaze(){
             }
         }
         /*cellsToDraw.forEach(cell => drawCell(cell.cell,cell.color));
-        await sleep(100);*/ 
+        await sleep(100); 
     }
-}
+}*/
 function drawCell(cellToDraw, color){
     context.beginPath();
     context.strokeStyle = color;
@@ -447,15 +437,22 @@ function changeScale(){
 	endCellInfo.y = endCellInfo.y*scaleX;
     context.clearRect(0,0,mainCanvas.clientWidth,mainCanvas.clientHeight);
 }
-function initializeSizes(){
+function initializeSizes(width, height){
     let rect = mainCanvas.getBoundingClientRect();
-    cellSize={
-        width:45*scaleX,
-        height:45*scaleX,
-    }
+    let num = 0;
     mazeSize={
-        width:15,
-        height:15,
+        width:cellNum,
+        height:cellNum
+    }
+    if(width > height){
+        num = (height/Math.sqrt(2))/mazeSize.width;
+    }
+    else{
+        num = (width/Math.sqrt(2))/mazeSize.width;
+    }
+    cellSize={
+        width:num,
+        height:num
     }
     begin={
         x:(rect.x+mainCanvas.clientWidth/2)-(cellSize.width*mazeSize.width/2-cellSize.width/2)-rect.left,
