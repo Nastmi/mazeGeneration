@@ -77,6 +77,7 @@ async function tick(){
     }
     if(circleInsideCircle(playerPos,endCellInfo)){
 		rotate = false;
+		document.getElementById("win").style.color = "#00FF00";
 	    document.getElementById("win").innerHTML = "You won!";
     }
     drawPlayer();
@@ -174,6 +175,8 @@ function checkCollisions(e){
             if(pointInsideCircle(playerPos,{x:pointX,y:pointY})){
                 playerPos.x=playerPos.startX;
                 playerPos.y=playerPos.startY;
+				document.getElementById("win").innerHTML = "You lost";
+				document.getElementById("win").style.color = "#FF0000";
                 moved = false;
             }
         }
@@ -251,6 +254,8 @@ function angleOf(p1,p2){
     return Math.atan2(deltaY,deltaX)*(180/Math.PI);
 }
 async function newMaze(){
+	document.getElementById("win").innerHTML = "You are currently playing!";
+	document.getElementById("win").style.color = "#0000FF";
     collisionLines = [];
     angles = []; 	
     rotate = true;
