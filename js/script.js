@@ -8,7 +8,7 @@ let cellSize;
 let mazeSize;
 let gridArray;
 let cellsToDraw = [];
-let date = Date.now();
+let date =  new Date();
 let collisionLines = [];
 let playerPos;
 let speedX=0;
@@ -28,6 +28,10 @@ let rotate = true;
 let change = 0.0;
 let moved = false;
 let cellNum = 15;
+let currentSeconds = 0;
+let additionToTime = 10;
+let pointsToSolve = [];
+let solveAngles = [];
 async function initializeCanvas(){
     document.getElementById("rangeSlider").value = "15";
     mainCanvas = document.getElementById("drawCanvas");
@@ -44,6 +48,10 @@ async function initializeCanvas(){
         tempPoint2 = angleOf(tempPoint2,center);
         angles.push({p1:tempPoint1,p2:tempPoint2});
     }
+    solveMaze();
+    for(let i=0;i<solveAngles.length;i++){
+        solveAngles.push(angleOf(pointsToSolve[i],center));
+    }
     endAngle = angleOf(endCellInfo,center);
     startAngle = angleOf({x:playerPos.startX,y:playerPos.startY},center);
     window.addEventListener("keydown",keyBoolean,true);
@@ -51,8 +59,18 @@ async function initializeCanvas(){
     tick();
 }
 async function tick(){
-    if(Date.now()-date >= 100){
-        date = Date.now();
+    if(new Date()-date >= 1000){
+        currentSeconds++;
+        let seconds = Math.floor((currentSeconds+additionToTime)%60);
+        let minutes = Math.floor((currentSeconds+additionToTime)/60);
+        if(seconds < 10){
+            seconds = "0"+seconds;
+        }
+        if(minutes<10){
+            minutes="0"+minutes;
+        }
+        document.getElementById("timer").innerHTML = minutes+":"+seconds;
+        date = new Date();
     }
 	calcGrid(gridArray);
 	rotateGrid(collisionLines,angle);
@@ -81,10 +99,22 @@ async function tick(){
 	    document.getElementById("win").innerHTML = "You won!";
     }
     drawPlayer();
+    drawPath();
     requestAnimationFrame(tick);
 }
+function drawPath(){
+    context.strokeStyle = "#FF0000";
+    context.fillStyle = "#FF0000";
+    context.beginPath();
+    for(let i=1;i<pointsToSolve.length;i++){
 
-
+        context.moveTo(pointsToSolve[i-1].x+Math.cos(toRadians(angle+solveAngles[i-1]))*(distanceBetween(pointsToSolve[i-1],center)),pointsToSolve[i-1].y+Math.sin(toRadians(angle+solveAngles[i-1]))*(distanceBetween(pointsToSolve[i-1],center)));
+        context.lineTo(pointsToSolve[i].x+Math.cos(toRadians(angle+solveAngles[i-1]))*(distanceBetween(pointsToSolve[i-1],center)),pointsToSolve[i].y+Math.sin(toRadians(angle+solveAngles[i-1]))*(distanceBetween(pointsToSolve[i-1],center)));
+    }
+    context.stroke();
+   /* center.x+Math.cos(toRadians(angle+angles[i].p1))*(distanceBetween(point1,center));
+        collisionLines[i].y1 = center.y+Math.sin(toRadians(angle+angles[i].p1))*(distanceBetween(point1,center));*/
+}
 function movePlayer(){
     playerPos.x+=speedX;
     playerPos.y+=speedY;
@@ -355,11 +385,12 @@ async function generateMaze(){
     }
 
 }
-/*async function solveMaze(){
+async function solveMaze(){
     let visited = [];
     let stack = [];
     cellsToDraw = [];
     let currentCell = startCell;
+    let countBack = 0;
     while(currentCell != endCell){
         if(!visited.includes(currentCell))
             visited.push(currentCell);
@@ -374,6 +405,7 @@ async function generateMaze(){
                 cellsToDraw.pop();
                 cellsToDraw.push(cellsToDraw.push({cell:currentCell,color:"#FF0000"}));
                 currentCell = stack[stack.length-1];
+                pointsToSolve.pop();
                 break;
             }
             if(sur[index]<0 || sur[index]>mazeSize.width*mazeSize.height-1 || (index == 1 && sur[index]%mazeSize.width == 0) || (index == 3 && sur[index]%mazeSize.width == mazeSize.width-1)){
@@ -392,15 +424,13 @@ async function generateMaze(){
                 continue;
 			}
             else if(gridArray[Math.trunc(currentCell/mazeSize.width)][currentCell%mazeSize.width].charAt(index) == "0"){
+                pointsToSolve.push({x:currentCell%mazeSize.width*cellSize.width+begin.x,y:Math.trunc(currentCell/mazeSize.width)*cellSize.width+begin.y});
                 currentCell = sur[index];
-                cellsToDraw.push({cell:currentCell,color:"#0000FF"});
                 break;
             }
         }
-        /*cellsToDraw.forEach(cell => drawCell(cell.cell,cell.color));
-        await sleep(100); 
     }
-}*/
+}
 function drawCell(cellToDraw, color){
     context.beginPath();
     context.strokeStyle = color;
