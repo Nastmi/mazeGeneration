@@ -107,13 +107,12 @@ function drawPath(){
     context.fillStyle = "#FF0000";
     context.beginPath();
     for(let i=1;i<pointsToSolve.length;i++){
-
-        context.moveTo(pointsToSolve[i-1].x+Math.cos(toRadians(angle+solveAngles[i-1]))*(distanceBetween(pointsToSolve[i-1],center)),pointsToSolve[i-1].y+Math.sin(toRadians(angle+solveAngles[i-1]))*(distanceBetween(pointsToSolve[i-1],center)));
-        context.lineTo(pointsToSolve[i].x+Math.cos(toRadians(angle+solveAngles[i-1]))*(distanceBetween(pointsToSolve[i-1],center)),pointsToSolve[i].y+Math.sin(toRadians(angle+solveAngles[i-1]))*(distanceBetween(pointsToSolve[i-1],center)));
+        context.moveTo(pointsToSolve[i-1].x,pointsToSolve[i-1].y);
+        context.lineTo(pointsToSolve[i].x,pointsToSolve[i].y);
+        //context.moveTo(pointsToSolve[i-1].x+Math.cos(toRadians(angle+solveAngles[i-1]))*(distanceBetween(pointsToSolve[i-1],center)),pointsToSolve[i-1].y+Math.sin(toRadians(angle+solveAngles[i-1]))*(distanceBetween(pointsToSolve[i-1],center)));
+        //context.lineTo(pointsToSolve[i].x+Math.cos(toRadians(angle+solveAngles[i]))*(distanceBetween(pointsToSolve[i],center)),pointsToSolve[i].y+Math.sin(toRadians(angle+solveAngles[i]))*(distanceBetween(pointsToSolve[i],center)));
     }
     context.stroke();
-   /* center.x+Math.cos(toRadians(angle+angles[i].p1))*(distanceBetween(point1,center));
-        collisionLines[i].y1 = center.y+Math.sin(toRadians(angle+angles[i].p1))*(distanceBetween(point1,center));*/
 }
 function movePlayer(){
     playerPos.x+=speedX;
