@@ -49,7 +49,7 @@ async function initializeCanvas(){
         angles.push({p1:tempPoint1,p2:tempPoint2});
     }
     solveMaze();
-    for(let i=0;i<solveAngles.length;i++){
+    for(let i=0;i<pointsToSolve.length;i++){
         solveAngles.push(angleOf(pointsToSolve[i],center));
     }
     endAngle = angleOf(endCellInfo,center);
@@ -72,19 +72,15 @@ async function tick(){
         document.getElementById("timer").innerHTML = minutes+":"+seconds;
         date = new Date();
     }
-	calcGrid(gridArray);
+    calcGrid(gridArray);
 	rotateGrid(collisionLines,angle);
     drawGrid(collisionLines);
+    rotatePath(angle);
+    drawPath();
     if(angle >= 360)
         angle = 0;
     if(rotate)
         angle+=change;
-	/*cellSize.width+=change;
-	cellSize.height+=change;
-	if(cellSize.width >= 80)
-		change=-1;
-	if(cellSize.width <= 40)
-		change=1;*/
     context.beginPath();
     changeSpeed();
     checkCollisions();
@@ -99,8 +95,14 @@ async function tick(){
 	    document.getElementById("win").innerHTML = "You won!";
     }
     drawPlayer();
-    drawPath();
     requestAnimationFrame(tick);
+}
+function rotatePath(angle){
+    for(let i=0;i<pointsToSolve.length;i++){
+        pointsToSolve[i].x = center.x+Math.cos(toRadians(angle+solveAngles[i]))*distanceBetween(pointsToSolve[i],center);
+        pointsToSolve[i].y = center.y+Math.sin(toRadians(angle+solveAngles[i]))*distanceBetween(pointsToSolve[i],center);
+    }
+
 }
 function drawPath(){
     context.strokeStyle = "#FF0000";
@@ -109,8 +111,6 @@ function drawPath(){
     for(let i=1;i<pointsToSolve.length;i++){
         context.moveTo(pointsToSolve[i-1].x,pointsToSolve[i-1].y);
         context.lineTo(pointsToSolve[i].x,pointsToSolve[i].y);
-        //context.moveTo(pointsToSolve[i-1].x+Math.cos(toRadians(angle+solveAngles[i-1]))*(distanceBetween(pointsToSolve[i-1],center)),pointsToSolve[i-1].y+Math.sin(toRadians(angle+solveAngles[i-1]))*(distanceBetween(pointsToSolve[i-1],center)));
-        //context.lineTo(pointsToSolve[i].x+Math.cos(toRadians(angle+solveAngles[i]))*(distanceBetween(pointsToSolve[i],center)),pointsToSolve[i].y+Math.sin(toRadians(angle+solveAngles[i]))*(distanceBetween(pointsToSolve[i],center)));
     }
     context.stroke();
 }
