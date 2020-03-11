@@ -1,6 +1,10 @@
 *{
     margin: 0px;
     padding: 0px;
+    background-color: #191414;
+}
+#body{
+    background-color: #191414;
 }
 #wrap{
     background-color: #191414;
@@ -17,15 +21,18 @@
     justify-content: center;
     width:100%;
     height: 100%;
+    background-color: #191414;
 }
 #canvasDiv{
     width: 70%;
     height: 99%;
+    background-color: #191414;
 }
 #drawCanvas{
     width: 100%;
     height: 100%;
     border-radius: 10px;
+    background-color: #191414;
 }
 #after{
     margin-top: 20px;

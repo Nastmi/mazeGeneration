@@ -29,7 +29,7 @@ let change = 0.0;
 let moved = false;
 let cellNum = 15;
 let currentSeconds = 0;
-let additionToTime = 10;
+let additionToTime = 0;
 let pointsToSolve = [];
 let solveAngles = [];
 async function initializeCanvas(){
@@ -49,6 +49,7 @@ async function initializeCanvas(){
         angles.push({p1:tempPoint1,p2:tempPoint2});
     }
     solveMaze();
+    pointsToSolve.push({x:endCellInfo.x,y:endCellInfo.y});
     for(let i=0;i<pointsToSolve.length;i++){
         solveAngles.push(angleOf(pointsToSolve[i],center));
     }
@@ -82,6 +83,7 @@ async function tick(){
     if(rotate)
         angle+=change;
     context.beginPath();
+    console.log(angle);
     changeSpeed();
     checkCollisions();
     movePlayer();
@@ -98,10 +100,28 @@ async function tick(){
     requestAnimationFrame(tick);
 }
 function rotatePath(angle){
+    angle = 0;
     for(let i=0;i<pointsToSolve.length;i++){
-        pointsToSolve[i].x = center.x+Math.cos(toRadians(angle+solveAngles[i]))*distanceBetween(pointsToSolve[i],center);
-        pointsToSolve[i].y = center.y+Math.sin(toRadians(angle+solveAngles[i]))*distanceBetween(pointsToSolve[i],center);
+        pointsToSolve[i].x = center.x+Math.cos(toRadians(angle+solveAngles[i]))*(distanceBetween(pointsToSolve[i],center));
+        pointsToSolve[i].y = center.y+Math.sin(toRadians(angle+solveAngles[i]))*(distanceBetween(pointsToSolve[i],center));
     }
+}
+function rotateGrid(collisionLines,angle){
+    for(let i=0;i<collisionLines.length;i++){
+        let point1 = {x:collisionLines[i].x1,y:collisionLines[i].y1};
+        let point2 = {x:collisionLines[i].x2,y:collisionLines[i].y2};
+        collisionLines[i].x1 = center.x+Math.cos(toRadians(angle+angles[i].p1))*(distanceBetween(point1,center));
+        collisionLines[i].y1 = center.y+Math.sin(toRadians(angle+angles[i].p1))*(distanceBetween(point1,center));
+        collisionLines[i].x2 = center.x+Math.cos(toRadians(angle+angles[i].p2))*(distanceBetween(point2,center));
+        collisionLines[i].y2 = center.y+Math.sin(toRadians(angle+angles[i].p2))*(distanceBetween(point2,center));
+    }
+	let endc = {x:endCellInfo.x,y:endCellInfo.y,r:endCellInfo.r};
+	let startc = {x:playerPos.startX,y:playerPos.startY};
+    endCellInfo.x = center.x+Math.cos(toRadians(angle+endAngle))*distanceBetween(endc,center);
+    endCellInfo.y = center.y+Math.sin(toRadians(angle+endAngle))*distanceBetween(endc,center);
+    playerPos.startX = center.x+Math.cos(toRadians(angle+startAngle))*distanceBetween(startc,center);
+    playerPos.startY = center.y+Math.sin(toRadians(angle+startAngle))*distanceBetween(startc,center);
+
 
 }
 function drawPath(){
@@ -259,24 +279,6 @@ function drawGrid(gridToDraw){
 function toRadians(angle){
     return angle*(Math.PI/180);
 }
-function rotateGrid(collisionLines,angle){
-    for(let i=0;i<collisionLines.length;i++){
-        let point1 = {x:collisionLines[i].x1,y:collisionLines[i].y1};
-        let point2 = {x:collisionLines[i].x2,y:collisionLines[i].y2};
-        collisionLines[i].x1 = center.x+Math.cos(toRadians(angle+angles[i].p1))*(distanceBetween(point1,center));
-        collisionLines[i].y1 = center.y+Math.sin(toRadians(angle+angles[i].p1))*(distanceBetween(point1,center));
-        collisionLines[i].x2 = center.x+Math.cos(toRadians(angle+angles[i].p2))*(distanceBetween(point2,center));
-        collisionLines[i].y2 = center.y+Math.sin(toRadians(angle+angles[i].p2))*(distanceBetween(point2,center));
-    }
-	let endc = {x:endCellInfo.x,y:endCellInfo.y,r:endCellInfo.r};
-	let startc = {x:playerPos.startX,y:playerPos.startY};
-    endCellInfo.x = center.x+Math.cos(toRadians(angle+endAngle))*distanceBetween(endc,center);
-    endCellInfo.y = center.y+Math.sin(toRadians(angle+endAngle))*distanceBetween(endc,center);
-    playerPos.startX = center.x+Math.cos(toRadians(angle+startAngle))*distanceBetween(startc,center);
-    playerPos.startY = center.y+Math.sin(toRadians(angle+startAngle))*distanceBetween(startc,center);
-
-
-}
 function angleOf(p1,p2){
     let deltaY = (p1.y-p2.y);
     let deltaX = (p1.x-p2.x);
@@ -378,6 +380,7 @@ async function generateMaze(){
             y:begin.y+cellSize.height*Math.trunc(endCell/mazeSize.width),
             r:cellSize.width/2,
         }
+
     }
     catch(err){
         newMaze();
