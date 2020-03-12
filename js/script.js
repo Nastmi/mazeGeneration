@@ -34,6 +34,9 @@ let pointsToSolve = [];
 let solveAngles = [];
 let timer = true;
 let fired = false;
+let numOfDeaths = 0;
+let seconds = 0;
+let minutes = 0;
 async function initializeCanvas(){
     document.getElementById("rangeSlider").value = "15";
     mainCanvas = document.getElementById("drawCanvas");
@@ -64,8 +67,8 @@ async function initializeCanvas(){
 async function tick(){
     if(new Date()-date >= 1000 && timer){
         currentSeconds++;
-        let seconds = Math.floor((currentSeconds+additionToTime)%60);
-        let minutes = Math.floor((currentSeconds+additionToTime)/60);
+        seconds = Math.floor((currentSeconds+additionToTime)%60);
+        minutes = Math.floor((currentSeconds+additionToTime)/60);
         if(seconds < 10){
             seconds = "0"+seconds;
         }
@@ -101,7 +104,7 @@ async function tick(){
         if(!fired){
             Swal.fire({
                 title: "Victory!",
-                text: "You have sucesfully completed the maze! Close this window and press new maze to play again!",
+                text: "You have sucesfully completed the maze, with "+ numOfDeaths+" deaths. Time spent was "+ minutes+":"+seconds+". Close this window and press new maze to play again! ",
                 icon: "success",
                 background:"#FFFFFF"
             })
@@ -236,7 +239,8 @@ function checkCollisions(e){
             if(pointInsideCircle(playerPos,{x:pointX,y:pointY})){
                 playerPos.x=playerPos.startX;
                 playerPos.y=playerPos.startY;
-				document.getElementById("win").innerHTML = "You lost";
+                numOfDeaths++;
+				document.getElementById("win").innerHTML = "Status: you have died "+numOfDeaths+" times";
 				document.getElementById("win").style.color = "#FF0000";
                 moved = false;
             }
@@ -297,6 +301,7 @@ function angleOf(p1,p2){
     return Math.atan2(deltaY,deltaX)*(180/Math.PI);
 }
 async function newMaze(){
+    numOfDeaths = 0;
     fired = false;
     timer = true;
     currentSeconds = -1;
