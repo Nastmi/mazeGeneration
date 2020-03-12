@@ -32,6 +32,8 @@ let currentSeconds = 0;
 let additionToTime = 0;
 let pointsToSolve = [];
 let solveAngles = [];
+let timer = true;
+let fired = false;
 async function initializeCanvas(){
     document.getElementById("rangeSlider").value = "15";
     mainCanvas = document.getElementById("drawCanvas");
@@ -60,7 +62,7 @@ async function initializeCanvas(){
     tick();
 }
 async function tick(){
-    if(new Date()-date >= 1000){
+    if(new Date()-date >= 1000 && timer){
         currentSeconds++;
         let seconds = Math.floor((currentSeconds+additionToTime)%60);
         let minutes = Math.floor((currentSeconds+additionToTime)/60);
@@ -76,8 +78,8 @@ async function tick(){
     calcGrid(gridArray);
 	rotateGrid(collisionLines,angle);
     drawGrid(collisionLines);
-    rotatePath(angle);
-    drawPath();
+    /*rotatePath(angle);
+    drawPath();*/
     if(angle >= 360)
         angle = 0;
     if(rotate)
@@ -92,15 +94,24 @@ async function tick(){
         playerPos.y = playerPos.startY;
     }
     if(circleInsideCircle(playerPos,endCellInfo)){
-		rotate = false;
+        rotate = false;
+        timer = false;
 		document.getElementById("win").style.color = "#00FF00";
-	    document.getElementById("win").innerHTML = "You won!";
+        document.getElementById("win").innerHTML = "You won!";
+        if(!fired){
+            Swal.fire({
+                title: "Victory!",
+                text: "You have sucesfully completed the maze! Close this window and press new maze to play again!",
+                icon: "success"
+            })
+            fired = true;
+        }
     }
     drawPlayer();
     requestAnimationFrame(tick);
 }
 function rotatePath(angle){
-    angle = 0;
+    angle = 90;
     for(let i=0;i<pointsToSolve.length;i++){
         pointsToSolve[i].x = center.x+Math.cos(toRadians(angle+solveAngles[i]))*(distanceBetween(pointsToSolve[i],center));
         pointsToSolve[i].y = center.y+Math.sin(toRadians(angle+solveAngles[i]))*(distanceBetween(pointsToSolve[i],center));
@@ -285,6 +296,9 @@ function angleOf(p1,p2){
     return Math.atan2(deltaY,deltaX)*(180/Math.PI);
 }
 async function newMaze(){
+    fired = false;
+    timer = true;
+    currentSeconds = -1;
 	document.getElementById("win").innerHTML = "You are currently playing!";
 	document.getElementById("win").style.color = "#0000FF";
     collisionLines = [];
