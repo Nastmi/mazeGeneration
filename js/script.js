@@ -9,6 +9,7 @@ let mazeSize;
 let gridArray;
 let cellsToDraw = [];
 let date =  new Date();
+let datePath = new Date();
 let collisionLines = [];
 let playerPos;
 let speedX=0;
@@ -34,6 +35,7 @@ let pointsToSolve = [];
 let solveAngles = [];
 let timer = true;
 let fired = false;
+let sPress = 0;
 let numOfDeaths = 0;
 let seconds = 0;
 let minutes = 0;
@@ -81,8 +83,10 @@ async function tick(){
     calcGrid(gridArray);
 	rotateGrid(collisionLines,angle);
     drawGrid(collisionLines);
-    /*rotatePath(angle);
-    drawPath();*/
+    if(sPress < 3){
+       /* rotatePath(angle);
+        drawPath();*/
+    }
     if(angle >= 360)
         angle = 0;
     if(rotate)
@@ -115,10 +119,12 @@ async function tick(){
     requestAnimationFrame(tick);
 }
 function rotatePath(angle){
-    angle = 90;
+    //angle = 90;
     for(let i=0;i<pointsToSolve.length;i++){
-        pointsToSolve[i].x = center.x+Math.cos(toRadians(angle+solveAngles[i]))*(distanceBetween(pointsToSolve[i],center));
-        pointsToSolve[i].y = center.y+Math.sin(toRadians(angle+solveAngles[i]))*(distanceBetween(pointsToSolve[i],center));
+        console.log(angle+solveAngles[i]);
+        let distance = distanceBetween(pointsToSolve[i],center);
+        pointsToSolve[i].x = center.x+Math.cos(toRadians(angle+solveAngles[i]))*distance;
+        pointsToSolve[i].y = center.y+Math.sin(toRadians(angle+solveAngles[i]))*distance;
     }
 }
 function rotateGrid(collisionLines,angle){
@@ -185,19 +191,26 @@ function distanceBetween(a,b){
     return Math.sqrt(((a.x-b.x)*(a.x-b.x))+((a.y-b.y)*(a.y-b.y)));
 }
 function keyBoolean(e){
-    moved = true;
     switch(e.keyCode){
         case 37:
             keysDown.left = true;
+            moved = true;
             break;
         case 38:    
             keysDown.up = true;
+            moved = true;
             break;
         case 39:
             keysDown.right = true;
+            moved = true;
             break;
         case 40:
             keysDown.down = true;
+            moved = true;
+            break;
+        case 83:
+            sPress++;
+
             break;
     }
 }
