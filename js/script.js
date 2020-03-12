@@ -102,7 +102,8 @@ async function tick(){
             Swal.fire({
                 title: "Victory!",
                 text: "You have sucesfully completed the maze! Close this window and press new maze to play again!",
-                icon: "success"
+                icon: "success",
+                background:"#FFFFFF"
             })
             fired = true;
         }
